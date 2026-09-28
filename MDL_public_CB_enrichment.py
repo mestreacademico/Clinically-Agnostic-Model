@@ -108,13 +108,13 @@ def load_data(url: str, csv_filename: str) -> pd.DataFrame:
     if os.path.exists(ZIP_PATH):
         os.remove(ZIP_PATH)
     
-    print("Dataset loadind...")
+    print("Dataset loading...")
     return pd.read_csv(CSV_PATH)
 
 
 if __name__ == "__main__":
-    df = load_data(DATA_URL, TARGET_CSV)
-    print(f"Done: {df.shape[0]} linhas e {df.shape[1]} colunas.")
+    df_full = load_data(DATA_URL, TARGET_CSV)
+    print(f"Done! Shape: {df_full.shape}")
 
 # ----------
 
@@ -159,45 +159,25 @@ print("RUS ...")
 rus = RandomUnderSampler(random_state=42, sampling_strategy = 0.20)
 train_x, train_y = rus.fit_resample(train_x, train_y)
 
-# CatBoost
-params_cat = {
-    'iterations': [500],             
-    'learning_rate': [0.01, 0.05],
-    'depth': [4, 6],
-    'l2_leaf_reg': [1, 3, 5],
-    'border_count': [32, 64],
+print("Model CATBOOST\n")
+
+best_params = {
+    'iterations': 500,
+    'learning_rate': 0.01,  
+    'depth': 6,              
+    'l2_leaf_reg': 3,        
+    'border_count': 64      
 }
 
 catboost_model = CatBoostClassifier(
+    **best_params,
     task_type='GPU',  
     random_seed=42,
     loss_function='Logloss',
     thread_count=24        
 )
 
-print("Model CATBOOST\n")
-print("Starting CatBoost grid search...")
-
-train_data = Pool(data=train_x, label=train_y)
-
-search = RandomizedSearchCV(
-    estimator=catboost_model,
-    param_distributions=params_cat,
-    n_iter=50,  
-    cv=3,  
-    verbose=2,
-    random_state=42,
-    n_jobs=1  
-)
-
-search.fit(train_x, train_y)
-
-print('Best CatBoost parameters: {}'.format(search.best_params_))
-  
-with open(f"{OUTPUT_FOLDER}best_estimator_CB.txt", 'w') as f:
-    f.write(f"Best Params: {search.best_params_}\n")
-
-catboost_model = search.best_estimator_
+catboost_model.fit(train_x, train_y)
 
 test_crops = df_full_dummies[df_full_dummies[CROP_FEATURE].isin(TEST_INFO)]
 
