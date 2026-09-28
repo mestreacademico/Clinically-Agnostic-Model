@@ -169,6 +169,7 @@ best_params = {
     'border_count': 64      
 }
 
+print("Training with best CatBoost parameters...")
 catboost_model = CatBoostClassifier(
     **best_params,
     task_type='GPU',  
