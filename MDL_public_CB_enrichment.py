@@ -76,7 +76,7 @@ TEST_INFO = [
     202401,                               
 ]
 
-inicio = datetime.now()
+begin = datetime.now()
 
 # download dataset
 DATA_URL = "https://zenodo.org/records/22998650/files/datasets.zip?download=1"
@@ -210,7 +210,7 @@ for grupo, df_sub in test_crops.groupby('Profile3'):
     ksGroup = max(tpr - fpr)
     ks_group.append(ksGroup)
 
-ks_medio = np.mean(ks_group)
+ks_avg = np.mean(ks_group)
 
 # AUCPR 
 precision_vals, recall_vals, _ = precision_recall_curve(test_crops[TARGET], y_proba)
@@ -221,18 +221,18 @@ print(f"AUC: {auc_score:.4f}")
 print(f"Recall: {recall:.4f}")
 print(f"Precision: {precision:.4f}")
 print(f"AUC PR: {aucpr_score}")
-print(f"KS Average: {ks_medio:.4f}")
+print(f"KS Average: {ks_avg:.4f}")
     
 with open(f"{OUTPUT_FOLDER}model_metrics_CB.txt", 'w') as f:
     f.write(f"AUC: {auc_score:.4f}\n")
     f.write(f"Recall: {recall:.4f}\n")
     f.write(f"Precision: {precision:.4f}\n")
     f.write(f"AUC PR: {aucpr_score:.4f}\n")
-    f.write(f"KS Average: {ks_medio:.4f}\n")
+    f.write(f"KS Average: {ks_avg:.4f}\n")
     
 
 del test_crops
-fim2 = datetime.now()
-duracao2 = fim2 - inicio
-print("Time:", duracao2)
+end = datetime.now()
+time = end - begin
+print("Time:", time)
 print("done!\n\n")
