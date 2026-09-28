@@ -92,7 +92,7 @@ def load_data(url: str, csv_filename: str) -> pd.DataFrame:
     os.makedirs(DATA_DIR, exist_ok=True)
 
     if os.path.exists(CSV_PATH):
-        print(f"Loadind data '{CSV_PATH}' ...")
+        print(f"Loading data '{CSV_PATH}' ...")
         return pd.read_csv(CSV_PATH)
 
     with requests.get(url, stream=True) as response:
@@ -130,7 +130,7 @@ features_drop = [
 
 features_output = features_drop + [TARGET]
 
-print("Getting dummies..")
+# Getting dummies
 df_features_drop = df_full[features_drop + ['Profile5']]
 df_full_dummies = pd.get_dummies(df_full.drop(features_drop, axis=1))
 df_full_dummies = pd.merge(left=df_full_dummies, right=df_features_drop, left_on=['Profile5'], right_on=['Profile5'], how='left')
@@ -199,14 +199,11 @@ with open(f"{OUTPUT_FOLDER}best_estimator_CB.txt", 'w') as f:
 
 catboost_model = search.best_estimator_
 
-
 test_crops = df_full_dummies[df_full_dummies[CROP_FEATURE].isin(TEST_INFO)]
 
 # ------ Metrics AUC, precision e Recall -----------
 
 test_crops_features = test_crops.drop(columns=features_drop + [TARGET])
-
-#test_crops_features.to_csv(f"{OUTPUT_FOLDER}test_crops_features.csv", index=False)
 
 # test
 y_proba = catboost_model.predict_proba(test_crops_features)[:, 1]  
