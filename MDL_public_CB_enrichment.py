@@ -9,6 +9,8 @@ import pandas as pd
 import pickle
 import os
 from datetime import datetime 
+import zipfile
+import requests
 
 ####################################
 # Output
@@ -79,17 +81,42 @@ inicio = datetime.now()
 # download dataset
 DATA_URL = "https://zenodo.org/records/22998650/files/datasets.zip?download=1"
 
-@pd.DataFrame
-def load_data(url: str) -> pd.DataFrame:
-    print("Readind dataset...")
-    return pd.read_csv(url)
+DATA_DIR = "data"
+TARGET_CSV = "dataset_model_enrichment_public.csv" 
+
+CSV_PATH = os.path.join(DATA_DIR, TARGET_CSV)
+ZIP_PATH = os.path.join(DATA_DIR, "datasets.zip")
+
+
+def load_data(url: str, csv_filename: str) -> pd.DataFrame:
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+    if os.path.exists(CSV_PATH):
+        print(f"Loadind data '{CSV_PATH}' ...")
+        return pd.read_csv(CSV_PATH)
+
+    with requests.get(url, stream=True) as response:
+        response.raise_for_status()
+        with open(ZIP_PATH, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+    print(f"Extracting '{csv_filename}' in ZIP...")
+    with zipfile.ZipFile(ZIP_PATH, "r") as zip_ref:
+        zip_ref.extract(csv_filename, path=DATA_DIR)
+
+    if os.path.exists(ZIP_PATH):
+        os.remove(ZIP_PATH)
+    
+    print("Dataset loadind...")
+    return pd.read_csv(CSV_PATH)
+
 
 if __name__ == "__main__":
-    df = load_data(DATA_URL)
+    df = load_data(DATA_URL, TARGET_CSV)
     print(f"Done: {df.shape[0]} linhas e {df.shape[1]} colunas.")
-    
-#df_full = pd.read_csv('dataset_model_enrichment_public.csv', engine='pyarrow')
-#print(df_full.shape)
+
+# ----------
 
 TARGET = 'Profile4' 
 CROP_FEATURE = 'Profile3'
@@ -216,15 +243,14 @@ print(f"AUC: {auc_score:.4f}")
 print(f"Recall: {recall:.4f}")
 print(f"Precision: {precision:.4f}")
 print(f"AUC PR: {aucpr_score}")
-print(f"KS Mean: {ks_medio:.4f}")
-print(f"KS: {ks_score * 100:.2f}%)")
+print(f"KS Average: {ks_medio:.4f}")
     
 with open(f"{OUTPUT_FOLDER}model_metrics_CB.txt", 'w') as f:
     f.write(f"AUC: {auc_score:.4f}\n")
     f.write(f"Recall: {recall:.4f}\n")
     f.write(f"Precision: {precision:.4f}\n")
     f.write(f"AUC PR: {aucpr_score:.4f}\n")
-    f.write(f"KS Mean: {ks_medio:.4f}\n")
+    f.write(f"KS Average: {ks_medio:.4f}\n")
     
 
 del test_crops
