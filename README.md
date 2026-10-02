@@ -12,9 +12,8 @@ The datasets are hosted in a compressed archive on **Zenodo** under DOI [`10.528
 ## How to Run
 
 ### 1. Clone the Repository
-```bash
-git clone [https://github.com/mestreacademico/Clinically-Agnostic-Model.git](https://github.com/mestreacademico/Clinically-Agnostic-Model.git)
-cd Clinically-Agnostic-Model
+Download or Clone the Repository.
+Download the repository as a ZIP archive from this page (or clone using the anonymized URL), then navigate to the project folder.
 
 ### 2. Create and Activate a Virtual Environment
 # Linux/macOS
