@@ -218,9 +218,7 @@ aucpr_score = auc(recall_vals, precision_vals)
     
 # Results
 print(f"AUC: {auc_score:.4f}")
-print(f"Recall: {recall:.4f}")
-print(f"Precision: {precision:.4f}")
-print(f"AUC PR: {aucpr_score}")
+print(f"AUC PR: {aucpr_score:.4f}")
 print(f"KS Average: {ks_avg:.4f}")
     
 with open(f"{OUTPUT_FOLDER}model_metrics_CB.txt", 'w') as f:
